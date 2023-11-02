@@ -6,7 +6,7 @@
 	     (util iterator)
 	     (onde seno)
 	     (effetti smorzamento) (effetti attacco)
-	     (strumenti campanelle) (strumenti violino) (strumenti tromba))
+	     (strumenti campanelle) (strumenti quadra) (strumenti violino) (strumenti tromba))
 
 
 (define frequenze
@@ -45,14 +45,14 @@
 	 (tono (* (interpreta-nota (car nota) (cadr nota)) (expt 2 (- ottava 4)))))
     (list tono durata ampiezza)))
 
-(define (put-sample sample)
+(define (put-sample sample port)
   (let ((buf (make-bytevector 2))
 	(out (cond ((> sample 32767) 32767)
 		   ((< sample -32767) -32767)
 		   ((and (>= sample -32767)
 			 (<= sample 32767)) sample))))
     (bytevector-s16-set! buf 0 (inexact->exact (ceiling out)) (endianness little))
-    (put-bytevector (current-output-port) buf)))
+    (put-bytevector port buf)))
 
 (define (taglio freq-camp frequenza tempo tono)
   (let* ((fine (* tempo freq-camp))
@@ -68,8 +68,9 @@
 (define (onnda desc)
   (taglio 48000 (car desc) (cadr desc) (violino 0.1 48000 (car desc) (caddr desc))))
 
-
-(iter-for-each put-sample
+(call-with-input-file "in.txt" (lambda (inport)
+(call-with-output-file "out.ww" (lambda (outport)
+(iter-for-each (lambda (sample) (put-sample sample outport))
 	       (iter-concat (iter-map onnda
 				      (iter-map interpreta-tono
-						(lines (current-input-port))))))
+						(lines inport)))))))))

@@ -8,10 +8,11 @@
 (define-public (onda-quadra frequenza freq-camp fase ampiezza)
 	       (onda-quadra-campioni (floor (/ freq-camp frequenza)) (* fase (/ (/ freq-camp frequenza) (* 2 3.14159))) ampiezza))
 
+
 (define (onda-quadra-campioni lunghezza-onda n_campione ampiezza)
-  (let* ((fase (remainder n_campione lunghezza-onda))
-	 (alto (> fase (quotient lunghezza-onda 2)))
-	 (campione (if alto
-		     ampiezza
-		     (- 0 ampiezza))))
-    (lambda () (cons campione (onda-quadra-campioni lunghezza-onda (+ n_campione 1) ampiezza)))))
+  (iter-map (lambda (n_campioni)
+	      (let* ((fase (remainder n_campioni lunghezza-onda))
+		     (alto (> fase (quotient lunghezza-onda 2))))
+		(if alto ampiezza (- 0 ampiezza))))
+	    (iter-scan + n_campione
+		       (repeat 1))))
