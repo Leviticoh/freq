@@ -14,11 +14,13 @@
 		      (next-state (cdr result)))
 		 (cons element (cons next-state funct))))
 
+
 (define-public (lines port)
 	       (cons port (lambda (p)
 			    (let ((line (get-line p)))
 			      (cons (if (eof-object? line) '() line)
 				    p)))))
+
 
 (define (iterate-impl a)
   (if (null? a)
@@ -26,54 +28,69 @@
     a))
 
 (define-public (iterate l)
-	       (cons l (lambda (a)
-			 (if (null? a)
-			   '(()())
-			   a))))
+	       (cons l iterate-impl))
+
 
 (define-public (repeat e)
 	       (cons e (lambda (a) (cons a a))))
 
+
+(define (iter-map-impl a)
+  (let ((source (generate (car a)))
+	(fun (cdr a)))
+    (if (null? (value source))
+      (cons '() (next source))
+      (cons (fun (value source)) (cons (next source) fun)))))
+
 (define-public (iter-map fun iter)
-	       (cons iter (lambda (a)
-			    (let ((source (generate a)))
-			      (if (null? (value source))
-				(cons '() (next source))
-				(cons (fun (value source)) (next source)))))))
+	       (cons (cons iter fun) iter-map-impl))
+
+
+(define (iter-scan-impl a)
+  (let* ((source (generate (cadr a)))
+	 (fun (cddr a))
+	 (result (if (null? (value source))
+		   '()
+		   (fun (car a) (value source)))))
+    (cons result (cons result (cons (next source) fun)))))
 
 (define-public (iter-scan fun state iter)
-	       (cons (cons state iter)
-		     (lambda (a)
-		       (let* ((source (generate (cdr a)))
-			      (result (if (null? (value source))
-					'()
-					(fun (car a) (value source)))))
-			 (cons result (cons result (next source)))))))
+	       (cons (cons state (cons iter fun))
+		     iter-scan-impl))
+
+
+(define (iter-zip-with-impl a)
+  (let ((source-a (generate (cadr a)))
+	(source-b (generate (cddr a)))
+	(fun (car a)))
+    (cons (if (or (null? (value source-a))
+		  (null? (value source-b)))
+	    '()
+	    (fun (value source-a) (value source-b)))
+	  (cons fun (cons (next source-a) (next source-b))))))
 
 (define-public (iter-zip-with fun iter-a iter-b)
-	       (cons (cons iter-a iter-b)
-		     (lambda (a)
-		       (let ((source-a (generate (car a)))
-			     (source-b (generate (cdr a))))
-			 (cons (if (or (null? (value source-a))
-				       (null? (value source-b)))
-				 '()
-				 (fun (value source-a) (value source-b)))
-			       (cons (next source-a) (next source-b)))))))
+	       (cons (cons fun (cons iter-a iter-b))
+		     iter-zip-with-impl))
+
 
 (define-public (iter-sum iters)
 	       (if (null? iters)
 		 (repeat 0)
 		 (iter-zip-with + (car iters) (iter-sum (cdr iters)))))
 
+
+(define (iter-take-impl a)
+  (let ((source (generate (cdr a))))
+    (cons (if (or (null? (value source))
+		  (<= (car a) 0))
+	    '()
+	    (value source))
+	  (cons (- (car a) 1) (next source)))))
+
 (define-public (iter-take n iter)
-	       (cons (cons n iter) (lambda (a)
-				     (let ((source (generate (cdr a))))
-				       (cons (if (or (null? (value source))
-						     (<= (car a) 0))
-					       '()
-					       (value source))
-					     (cons (- (car a) 1) (next source)))))))
+	       (cons (cons n iter)
+		     iter-take-impl))
 
 (define (iter-concat-impl iter iter-iter)
   (let ((source (generate iter)))
