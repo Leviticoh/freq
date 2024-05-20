@@ -1,0 +1,6 @@
+[submodule "lib/guile-iterators"]
+	path = lib/guile-iterators
+	url = https://github.com/Leviticoh/guile-iterators.git
+[submodule "lib/json"]
+	path = lib/json
+	url = https://github.com/Leviticoh/json.git

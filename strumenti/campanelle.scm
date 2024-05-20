@@ -1,8 +1,9 @@
 (define-module (strumenti campanelle))
 
+(add-to-load-path (string-append (dirname (current-filename)) "/../lib"))
 (add-to-load-path (string-append (dirname (current-filename)) "/.."))
 
-(use-modules (util iterator) (effetti smorzamento) (onde seno))
+(use-modules (guile-iterators iterator) (effetti smorzamento) (onde seno))
 
 
 (define-public (campanelle tau freq-camp frequenza ampiezza)

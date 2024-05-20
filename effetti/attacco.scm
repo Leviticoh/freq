@@ -1,8 +1,9 @@
 (define-module (effetti attacco))
 
+(add-to-load-path (string-append (dirname (current-filename)) "/../lib"))
 (add-to-load-path (string-append (dirname (current-filename)) "/.."))
 
-(use-modules (util iterator))
+(use-modules (guile-iterators iterator))
 
 
 (define-public (attacco freq-camp durata onda)

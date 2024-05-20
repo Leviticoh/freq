@@ -1,8 +1,9 @@
 (define-module (strumenti tromba))
 
+(add-to-load-path (string-append (dirname (current-filename)) "/../lib"))
 (add-to-load-path (string-append (dirname (current-filename)) "/.."))
 
-(use-modules (util iterator) (effetti smorzamento) (effetti attacco) (onde seno))
+(use-modules (guile-iterators iterator) (effetti smorzamento) (effetti attacco) (onde seno))
 
 
 (define-public (tromba freq-camp frequenza ampiezza)

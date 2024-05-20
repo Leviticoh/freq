@@ -1,6 +1,7 @@
 #!/usr/bin/env -S guile -s
 !#
 (add-to-load-path (string-append (dirname (current-filename)) "/lib"))
+(add-to-load-path (dirname (current-filename)))
 (use-modules (ice-9 pretty-print) (ice-9 textual-ports) (ice-9 binary-ports)
 	     (rnrs bytevectors)
 	     (guile-iterators iterator)
