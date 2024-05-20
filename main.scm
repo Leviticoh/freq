@@ -1,9 +1,9 @@
 #!/usr/bin/env -S guile -s
 !#
-(add-to-load-path (dirname (current-filename)))
+(add-to-load-path (string-append (dirname (current-filename)) "/lib"))
 (use-modules (ice-9 pretty-print) (ice-9 textual-ports) (ice-9 binary-ports)
 	     (rnrs bytevectors)
-	     (util iterator)
+	     (guile-iterators iterator)
 	     (onde seno)
 	     (effetti smorzamento) (effetti attacco)
 	     (strumenti campanelle) (strumenti quadra) (strumenti violino) (strumenti tromba))
@@ -66,11 +66,9 @@
 			     (iter-take (* freq-camp tempo) tono)))))
 
 (define (onnda desc)
-  (taglio 48000 (car desc) (cadr desc) (violino 0.1 48000 (car desc) (caddr desc))))
+  (taglio 48000 (car desc) (cadr desc) (tromba 48000 (car desc) (caddr desc))))
 
-(call-with-input-file "in.txt" (lambda (inport)
-(call-with-output-file "out.ww" (lambda (outport)
-(iter-for-each (lambda (sample) (put-sample sample outport))
+(iter-for-each (lambda (sample) (put-sample sample (current-output-port)))
 	       (iter-concat (iter-map onnda
 				      (iter-map interpreta-tono
-						(lines inport)))))))))
+						(lines (current-input-port))))))
